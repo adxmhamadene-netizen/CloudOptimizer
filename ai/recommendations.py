@@ -160,7 +160,6 @@ class RecommendationBuilder:
 
     def _confidence(self, finding, resource) -> float:
         base = 0.7
-        # Higher confidence for stronger signals
         cpu = resource.metrics.cpu_utilization or 0.0
         if finding.rule_id == "IDLE_INSTANCE" and cpu < 2.0:
             base = 0.95

@@ -1,11 +1,10 @@
 """
-AI Analyzer — rule-based engine structured for ML plug-in.
+AI Analyzer — coordinates the full analysis pipeline.
 
-Architecture:
-  analyze_resources()
-    → RuleEngine.evaluate()          (current: rules, future: feature extraction → model)
-    → AnomalyDetector.detect()       (current: z-score, future: Isolation Forest)
-    → CostPredictor.predict()        (current: linear trend, future: LSTM/Prophet)
+  analyze()
+    → RuleEngine.evaluate()       (rule-based; replace with feature extraction → model later)
+    → AnomalyDetector.detect()    (z-score; swap for Isolation Forest when ready)
+    → CostPredictor.forecast()    (linear trend; Prophet/LSTM are easy drop-ins)
     → RecommendationBuilder.build()
 """
 from __future__ import annotations
@@ -24,10 +23,7 @@ logger = logging.getLogger(__name__)
 
 
 class AIAnalyzer:
-    """
-    Orchestrates the full analysis pipeline.
-    Stateless — safe to call concurrently.
-    """
+    """Stateless — safe to call concurrently."""
 
     def __init__(self):
         self.rule_engine = RuleEngine()
@@ -36,20 +32,7 @@ class AIAnalyzer:
         self.rec_builder = RecommendationBuilder()
 
     def analyze(self, resources: list) -> dict:
-        """
-        Main entry point.
-
-        Args:
-            resources: list of Resource Pydantic objects
-
-        Returns:
-            {
-                "recommendations": [Recommendation, ...],
-                "anomalies": [dict, ...],
-                "cost_forecast": dict,
-                "summary": dict,
-            }
-        """
+        """Run all analysis stages and return recommendations, anomalies, forecast, and summary."""
         logger.info("Starting analysis of %d resources", len(resources))
 
         rule_findings = self.rule_engine.evaluate(resources)

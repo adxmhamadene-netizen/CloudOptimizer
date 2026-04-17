@@ -1,7 +1,4 @@
-"""
-Bridge between the FastAPI backend and the AI module.
-Handles caching, async wrapping, and alert generation.
-"""
+"""Connects the FastAPI backend to the AI module — caching, async wrapping, alert dispatch."""
 from __future__ import annotations
 
 import asyncio
@@ -44,14 +41,12 @@ class AnalyzerService:
             logger.debug("Returning cached analysis")
             return _cache
 
-        # Fetch resources (async-safe with run_in_executor for boto3 sync calls)
         resources = await self.aws.get_resources()
 
-        # Run AI analysis in executor to avoid blocking event loop
+        # boto3 is sync, so run AI analysis in an executor
         loop = asyncio.get_event_loop()
         result = await loop.run_in_executor(None, self._run_ai, resources)
 
-        # Hydrate recommendations to Pydantic models and store
         recommendations = []
         for rec_dict in result.get("recommendations", []):
             rec = self._dict_to_recommendation(rec_dict)
@@ -62,7 +57,7 @@ class AnalyzerService:
         _cache = result
         _cache_ts = datetime.utcnow()
 
-        # Fire-and-forget: send high-priority alerts to Slack
+        # fire-and-forget
         asyncio.create_task(self._send_alerts(recommendations, result.get("anomalies", [])))
 
         return result

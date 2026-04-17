@@ -1,8 +1,6 @@
 """
-Cost forecasting module.
-
-Current implementation: linear regression on cost_history per resource.
-Structured for drop-in replacement with Facebook Prophet or LSTM.
+Cost forecasting — linear regression over cost_history per resource.
+Prophet or an LSTM would be easy swaps if accuracy needs to improve.
 """
 from __future__ import annotations
 
@@ -14,13 +12,7 @@ logger = logging.getLogger(__name__)
 
 
 class CostPredictor:
-    """
-    Forecasts future cloud costs.
-
-    To use a real forecasting model (e.g. Prophet):
-        1. pip install prophet
-        2. Replace _linear_forecast() with Prophet().fit().predict()
-    """
+    """Forecasts future cloud costs. Swap _linear_forecast() for Prophet().fit().predict() if needed."""
 
     FORECAST_DAYS = 30
 
@@ -56,7 +48,7 @@ class CostPredictor:
         Fit a simple linear trend to the aggregate daily cost history and
         extrapolate one period forward.
         """
-        # Aggregate all cost_history points by day index
+        # Aggregate cost_history across all resources by day index
         if not resources:
             return 0.0
 

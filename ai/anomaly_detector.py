@@ -1,8 +1,6 @@
 """
-Anomaly detection module.
-
-Current implementation: z-score on cost_history (statistical baseline).
-Structured for drop-in replacement with scikit-learn IsolationForest or PyOD.
+Anomaly detection — z-score on cost_history.
+IsolationForest or PyOD would be straightforward replacements if needed.
 """
 from __future__ import annotations
 
@@ -18,10 +16,8 @@ class AnomalyDetector:
     """
     Detects anomalous cost patterns in resource history.
 
-    To plug in a real ML model:
-        1. Extract features via _extract_features()
-        2. Load/train a model in __init__
-        3. Replace _zscore_detect() call with model.predict()
+    To swap in an ML model: extract features via _extract_features(), load/train
+    in __init__, then replace _zscore_detect() with model.predict().
     """
 
     Z_THRESHOLD = 2.0       # std deviations above mean = anomaly
@@ -68,10 +64,7 @@ class AnomalyDetector:
         return None
 
     def _extract_features(self, resource) -> List[float]:
-        """
-        Feature vector for ML models.
-        Extend this as you add more signals.
-        """
+        """Feature vector — add more signals here when moving to an ML model."""
         m = resource.metrics
         return [
             m.cpu_utilization or 0.0,
